@@ -10,7 +10,6 @@ function App() {
       <MyListProvider>
         <div className="App">
           <AppContent />
-
           <Toast />
         </div>
       </MyListProvider>

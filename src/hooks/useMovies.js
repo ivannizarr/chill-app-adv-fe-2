@@ -1,59 +1,59 @@
 import { useEffect } from 'react';
-import useMovieStore from '../store/useMovieStore';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  fetchMovies,
+  selectMoviesByCategory,
+  selectGroupedMovies
+} from '../store';
 
 export const useMovies = () => {
-    const store = useMovieStore();
-    const { fetchMovies, movies, loading } = store;
+  const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (movies.length === 0 && !loading) {
-            fetchMovies();
-        }
-    }, [fetchMovies, movies.length, loading]);
+  const movies = useSelector(state => state.movies.movies);
+  const loading = useSelector(state => state.movies.loading);
+  const error = useSelector(state => state.movies.error);
+  const isInitialized = useSelector(state => state.movies.isInitialized);
+  const groupedMovies = useSelector(selectGroupedMovies);
 
-    return {
-        ...store,
-        movies: store.movies,
-        loading: store.loading,
-        error: store.error,
-        groupedMovies: store.getGroupedMovies(),
-        fetchMovies: store.fetchMovies,
-        addMovie: store.addMovie,
-        updateMovie: store.updateMovie,
-        deleteMovie: store.deleteMovie
-    };
+  useEffect(() => {
+    if (!isInitialized && !loading) {
+      dispatch(fetchMovies());
+    }
+  }, [dispatch, isInitialized, loading]);
+
+  return {
+    // Data
+    movies,
+    loading,
+    error,
+    groupedMovies,
+
+    // Functions
+    fetchMovies: () => dispatch(fetchMovies()),
+
+    // Helper functions
+    getGroupedMovies: () => groupedMovies,
+    getMoviesByCategory: (category) => movies.filter(m => m.category === category)
+  };
 };
 
 export const useMoviesByCategory = (category) => {
-    const {movies, fetchMovies, loading} = useMovieStore();
+  const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (movies.length === 0) {
-            fetchMovies();
-        }
-    }, [fetchMovies, movies.length]);
+  const movies = useSelector(state => selectMoviesByCategory(state, category));
+  const loading = useSelector(state => state.movies.loading);
+  const isInitialized = useSelector(state => state.movies.isInitialized);
 
-    const filteredMovies = movies.filter((movie) => movie.category === category);
+  useEffect(() => {
+    if (!isInitialized && !loading) {
+      dispatch(fetchMovies());
+    }
+  }, [dispatch, isInitialized, loading]);
 
-    return {
-        movies: filteredMovies,
-        loading,
-        refetch: fetchMovies,
-    };
+  return {
+    movies,
+    loading,
+    refetch: () => dispatch(fetchMovies())
+  };
 };
 
-export const useMovie = (id) => {
-    const { selectedMovie, fetchMovieById, loading } = useMovieStore();
-
-    useEffect(() => {
-        if (id) {
-            fetchMovieById(id);            
-        }
-    }, [id, fetchMovieById]);
-
-    return {
-        movie: selectedMovie,
-        loading,
-        refetch: () => fetchMovieById(id),
-    };
-};
