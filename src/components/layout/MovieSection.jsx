@@ -2,6 +2,30 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import MovieCarousel from '@components/cards/MovieCarousel';
 
+const SkeletonCard = ({ isHorizontal = false }) => {
+  const cardWidth = isHorizontal
+    ? 'w-[240px] sm:w-[270px] md:w-[290px] lg:w-[310px]'
+    : 'w-[140px] sm:w-[160px] md:w-[200px] lg:w-[220px] xl:w-[234px]';
+
+  const aspectRatio = isHorizontal ? 'aspect-video' : 'aspect-[2/3]';
+
+  return (
+    <div
+      className={`
+        relative flex-shrink-0 snap-start
+        rounded-xl overflow-hidden bg-neutral-800
+        animate-pulse
+        ${cardWidth} ${aspectRatio}
+      `}
+    >
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="w-3/4 h-4 bg-neutral-700 rounded mb-2" />
+        <div className="w-1/2 h-3 bg-neutral-700 rounded" />
+      </div>
+    </div>
+  );
+};
+
 const NavigationButton = ({
   direction,
   onClick,
@@ -42,7 +66,9 @@ export default function MovieSection({
   onItemClick,
   onItemInfo,
   containerClass = "",
-  myList = []
+  myList = [],
+  loading = false,
+  skeletonCount = 8
 }) {
   const scrollerRef = useRef(null);
 
@@ -72,11 +98,11 @@ export default function MovieSection({
 
   const sectionClass = isSpecialContainer
     ? "relative w-full"
-    : "relative w-full mb-20";
+    : "relative w-full mb-4";
 
   const headerClass = isSpecialContainer
-    ? "text-lg sm:text-xl md:text-3xl font-extrabold mb-8 text-white"
-    : "text-lg sm:text-xl md:text-3xl font-extrabold mb-4 text-white";
+    ? "text-lg sm:text-xl md:text-3xl font-extrabold mb-4 text-white"
+    : "text-lg sm:text-xl md:text-3xl font-extrabold mb-3 text-white";
 
   return (
     <section className={sectionClass} aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-heading`}>
@@ -109,11 +135,11 @@ export default function MovieSection({
         <div
           ref={scrollerRef}
           className={`
-            flex overflow-x-auto scroll-smooth snap-x snap-mandatory
-            pb-4 scrollbar-hide px-4 sm:px-6 md:px-8
+            flex overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory
+            py-4 scrollbar-hide px-4 sm:px-6 md:px-8
             ${containerClass === 'continue-watching'
-              ? 'gap-2 sm:gap-3 md:gap-2 lg:gap-3'
-              : 'gap-3 sm:gap-4 md:gap-5 lg:gap-6'
+              ? 'gap-2 sm:gap-2 md:gap-2 lg:gap-3'
+              : 'gap-2 sm:gap-3 md:gap-3 lg:gap-4'
             }
           `}
           style={{
@@ -124,36 +150,44 @@ export default function MovieSection({
           aria-label={`${title} list`}
         >
 
-          {items.map((item, index) => {
-            const key = item.uniqueId || item.id || index;
-            let variant = 'default';
-
-            if (containerClass === 'continue-watching') {
-              variant = 'continue-watching';
-            } else if (containerClass === 'top-rating') {
-              variant = 'top-rating';
-            } else if (containerClass === 'trending') {
-              variant = 'trending';
-            } else if (containerClass === 'new-releases') {
-              variant = 'new-release';
-            }
-
-            const isInMyList = myList.some(myListItem => myListItem.id === item.id);
-
-            return (
-              <div key={key} role="listitem" className="snap-start">
-                <MovieCarousel
-                  item={item}
-                  variant={variant}
-                  rank={index + 1}
-                  trendingPosition={index + 1}
-                  onPlay={onItemClick}
-                  onInfo={onItemInfo}
-                  isInMyList={isInMyList}
-                />
+          {(loading || !items || items.length === 0) ? (
+            Array.from({ length: skeletonCount }).map((_, index) => (
+              <div key={`skeleton-${index}`} role="listitem" className="snap-start">
+                <SkeletonCard isHorizontal={containerClass === 'continue-watching'} />
               </div>
-            );
-          })}
+            ))
+          ) : (
+            items.map((item, index) => {
+              const key = item.uniqueId || item.id || index;
+              let variant = 'default';
+
+              if (containerClass === 'continue-watching') {
+                variant = 'continue-watching';
+              } else if (containerClass === 'top-rating') {
+                variant = 'top-rating';
+              } else if (containerClass === 'trending') {
+                variant = 'trending';
+              } else if (containerClass === 'new-releases') {
+                variant = 'new-release';
+              }
+
+              const isInMyList = myList.some(myListItem => myListItem.id === item.id);
+
+              return (
+                <div key={key} role="listitem" className="snap-start">
+                  <MovieCarousel
+                    item={item}
+                    variant={variant}
+                    rank={index + 1}
+                    trendingPosition={index + 1}
+                    onPlay={onItemClick}
+                    onInfo={onItemInfo}
+                    isInMyList={isInMyList}
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

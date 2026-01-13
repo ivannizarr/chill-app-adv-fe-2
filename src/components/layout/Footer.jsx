@@ -20,9 +20,9 @@ const Footer = () => {
   return (
     <footer className="bg-[#181A1C] border-t border-border">
       <div className="w-full px-6 md:px-10 lg:px-16 xl:px-20 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-8 md:gap-2">
           {/* Logo & Copyright */}
-          <div className="md:col-span-1 space-y-4">
+          <div className="md:col-span-2 space-y-4">
             <div className="flex items-center space-x-2">
               <img src="/Assets/img/logo.svg" alt="CHILL" className="h-8" />
             </div>
@@ -32,7 +32,7 @@ const Footer = () => {
           </div>
 
           {/* Genre Section */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-3 md:-ml-16">
             {/* Mobile Genre Dropdown */}
             <div className="md:hidden">
               <button

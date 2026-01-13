@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Info } from 'lucide-react';
-import { IoMdVolumeHigh } from 'react-icons/io';
+import { IoMdVolumeHigh, IoMdVolumeOff } from 'react-icons/io';
 import MainLayout from '@layout/MainLayout';
 import MovieSection from '@layout/MovieSection';
 import { useMovies } from '@/hooks/useMovies';
@@ -19,7 +20,8 @@ const Home = ({
   onRemoveFromMyList,
   onPlayMovie
 }) => {
-  const { groupedMovies } = useMovies();
+  const { groupedMovies, loading } = useMovies();
+  const [isMuted, setIsMuted] = useState(true);
 
   const handleMovieAction = (movie, action) => {
     switch(action) {
@@ -63,7 +65,7 @@ const Home = ({
                         </h1>
                       </header>
 
-                      <p className="text-base md:text-lg lg:text-xl text-white/85 leading-relaxed mb-6 md:mb-8 max-w-3xl line-clamp-2 md:line-clamp-none">
+                      <p className="text-base md:text-lg lg:text-lg text-white/85 leading-relaxed mb-6 md:mb-8 max-w-3xl line-clamp-2 md:line-clamp-none">
                         {HERO_CONTENT.description}
                       </p>
 
@@ -76,7 +78,7 @@ const Home = ({
                         </button>
 
                         <button
-                          className="px-4 py-2.5 md:px-6 md:py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs md:text-base font-semibold rounded-full transition-colors duration-200 flex items-center gap-2"
+                          className="px-4 py-2.5 md:px-6 md:py-3 bg-white/10 border border-white/20 text-white text-xs md:text-base font-semibold rounded-full flex items-center gap-2"
                           aria-label={`More information about ${HERO_CONTENT.title}`}
                         >
                           <Info className="w-4 h-4 md:w-5 md:h-5" aria-hidden="true" />
@@ -90,9 +92,17 @@ const Home = ({
                     </article>
 
                     <aside className="ml-4 md:ml-8" aria-label="Audio controls">
-                      <div className="p-2 md:p-3 bg-white/10 border border-white/20 rounded-full">
-                        <IoMdVolumeHigh className="w-5 h-5 md:w-6 md:h-6 text-white" aria-hidden="true" />
-                      </div>
+                      <button
+                        onClick={() => setIsMuted(!isMuted)}
+                        className="p-2 md:p-3 bg-white/10 border border-white/20 rounded-full hover:bg-white/20 transition-colors"
+                        aria-label={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? (
+                          <IoMdVolumeOff className="w-5 h-5 md:w-6 md:h-6 text-white" aria-hidden="true" />
+                        ) : (
+                          <IoMdVolumeHigh className="w-5 h-5 md:w-6 md:h-6 text-white" aria-hidden="true" />
+                        )}
+                      </button>
                     </aside>
                   </div>
                 </div>
@@ -109,6 +119,7 @@ const Home = ({
                 cardType="horizontal"
                 containerClass="continue-watching"
                 myList={myList}
+                loading={loading}
               />
             </section>
 
@@ -129,6 +140,7 @@ const Home = ({
                 cardType="vertical"
                 containerClass="top-rating"
                 myList={myList}
+                loading={loading}
               />
             </section>
 
@@ -148,6 +160,7 @@ const Home = ({
                 cardType="vertical"
                 containerClass="trending"
                 myList={myList}
+                loading={loading}
               />
             </section>
 
@@ -167,6 +180,7 @@ const Home = ({
                 cardType="vertical"
                 containerClass="new-releases"
                 myList={myList}
+                loading={loading}
               />
             </section>
           </div>
